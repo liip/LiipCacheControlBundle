@@ -59,10 +59,7 @@ class Varnish
     private $lastRequestInfo;
 
     /**
-     * Constructor
-     *
-     * @param string $host      The default host we want to purge urls from.
-     *                          only host and port are used, path is ignored
+     * @param string $host      The default host we want to purge urls from. Must be name and optional port.
      * @param array  $ips       space separated list of varnish ips to talk to
      * @param int    $port      the port the varnishes listen on (its the same
      *                          port for all instances)
@@ -71,11 +68,15 @@ class Varnish
      */
     public function __construct($host, array $ips, $port, $purgeInstruction = self::PURGE_INSTRUCTION_PURGE)
     {
-        $url = parse_url($host);
-        $this->host = $url['host'];
-        if (isset($url['port'])) {
-            $this->host .= ':' . $url['port'];
+        if (!strncmp('http', $host, 4)) {
+            trigger_error('Use only hostname and optional IP', E_DEPRECATED);
+            parse_url($host);
+            $host = $url['host'];
+            if (isset($url['port'])) {
+                $host .= ':' . $url['port'];
+            }
         }
+        $this->host = $host;
         $this->ips  = $ips;
         $this->port = $port;
         $this->purgeInstruction = $purgeInstruction;
@@ -138,9 +139,10 @@ class Varnish
      */
     protected function requestPurge($path, array $options = array())
     {
-        $headers = array(
-            sprintf('Host: %s', $this->host),
-        );
+        $headers = array();
+        if ($this->host) {
+            $headers[] = sprintf('Host: %s', $this->host);
+        }
 
         //Garanteed to be a purge request
         $options[CURLOPT_CUSTOMREQUEST] = 'PURGE';
@@ -163,7 +165,10 @@ class Varnish
      */
     protected function requestBan($path, $contentType = self::CONTENT_TYPE_ALL, array $hosts = null, array $options = array())
     {
-        $hosts = is_null($hosts) ? array($this->host) : $hosts;
+        $hosts = is_null($hosts)
+            ? is_null($this->host) ? array('.') : array($this->host)
+            : $hosts
+        ;
         $hostRegEx = count($hosts) > 0 ? '^('.join('|', $hosts).')$' : '.*';
 
         $headers = array(
