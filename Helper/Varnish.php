@@ -54,6 +54,7 @@ class Varnish
     private $host;
     private $port;
     private $purgeInstruction;
+    private $auth;
 
     private $lastRequestError;
     private $lastRequestInfo;
@@ -69,7 +70,7 @@ class Varnish
      * @param string $purgeInstruction the purge instruction (purge in Varnish
      *                          2, ban possible since Varnish 3)
      */
-    public function __construct($host, array $ips, $port, $purgeInstruction = self::PURGE_INSTRUCTION_PURGE)
+    public function __construct($host, array $ips, $port, $purgeInstruction = self::PURGE_INSTRUCTION_PURGE, $auth = null)
     {
         $url = parse_url($host);
         $this->host = $url['host'];
@@ -79,6 +80,7 @@ class Varnish
         $this->ips  = $ips;
         $this->port = $port;
         $this->purgeInstruction = $purgeInstruction;
+        $this->auth = $auth;
     }
 
     /**
@@ -198,6 +200,10 @@ class Varnish
             $options[CURLOPT_HTTPHEADER]    = array_merge($headers, $options[CURLOPT_HTTPHEADER]);
         } else {
             $options[CURLOPT_HTTPHEADER]    = $headers;
+        }
+
+        if ($this->auth) {
+            $options[CURLOPT_HTTPHEADER][] = sprintf('Authorization: "Basic %s"', $this->auth);
         }
 
         foreach ($options as $option => $value) {

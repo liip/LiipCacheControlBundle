@@ -84,6 +84,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('domain')->defaultNull()->info('depreciated, use host instead')->end()
                         ->scalarNode('host')->defaultNull()->info('URL host name')->end()
                         ->scalarNode('port')->defaultNull()->end()
+                        ->scalarNode('auth')->defaultNull()->info('Basic HTTP Auth string')->end()
                         ->enumNode('purge_instruction')
                             ->values(array('purge', 'ban'))
                             ->defaultValue('purge')
