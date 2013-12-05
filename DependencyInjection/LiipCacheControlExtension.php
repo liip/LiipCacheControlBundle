@@ -2,6 +2,7 @@
 
 namespace Liip\CacheControlBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor,
     Symfony\Component\Config\FileLocator,
     Symfony\Component\HttpKernel\DependencyInjection\Extension,
@@ -64,13 +65,21 @@ class LiipCacheControlExtension extends Extension
         if (!empty($config['varnish'])) {
 
             if (!extension_loaded('curl')) {
-                throw new RuntimeException('Varnish Helper requires cUrl php extension. Please install it to continue');
-
+                throw new InvalidConfigurationException('Varnish Helper requires cUrl php extension. Please install it to continue');
             }
 
             // domain is depreciated and will be removed in future
             $host = is_null($config['varnish']['host']) && $config['varnish']['domain'] ? $config['varnish']['domain'] : $config['varnish']['host'];
-
+            if ($host) {
+                $url = parse_url($host);
+                if (!isset($url['host'])) {
+                    throw new InvalidConfigurationException("$host is not a valid host configuration. Needs to be i.e. http://domain.net");
+                }
+                $host = $url['host'];
+                if (isset($url['port'])) {
+                    $host .= ':' . $url['port'];
+                }
+            }
             $loader->load('varnish_helper.xml');
             $container->setParameter($this->getAlias().'.varnish.ips', $config['varnish']['ips']);
             $container->setParameter($this->getAlias().'.varnish.host', $host);
