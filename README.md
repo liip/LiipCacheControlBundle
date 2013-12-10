@@ -395,6 +395,30 @@ $varnish = $this->container->get('liip_cache_control.varnish');
 $varnish->refreshPath('/some/path');
 ```
 
+Banning from the console
+------------------------
+
+You can also ban URLs from the console
+
+``` shell
+app/console liip:cache-control:varnish:invalidate
+```
+
+will ban (invalidate) all entries in your configured varnish servers (matching
+varnish.host)
+
+``` shell
+app/console liip:cache-control:varnish:invalidate /posts.*
+```
+
+will ban (invalidate) all entries in your configured varnish servers, where the
+URL starts with "/posts". Any regular expression understood by varnish can be
+used here.
+
+It uses the Varnish Helper class, therefore if you defined more than one varnish
+server in the config file (in varnish.ips), the entries will be deleted in all
+servers.
+
 Cache authorization listener
 ============================
 
@@ -512,3 +536,5 @@ liip_cache_control:
     flash_message_listener:
         enabled: false
 ```
+
+
