@@ -189,11 +189,13 @@ liip_cache_control:
         host: http://www.liip.ch
         ips: 10.0.0.10, 10.0.0.11
         port: 80
-        headers: ["Authorization: Zm9vOmJhcg==", "X-Another-Header: here"]
+        headers: ["Authorization: Basic Zm9vOmJhcg==", "X-Another-Header: here"]
 ```
 
 * **host**: This must match the web host clients are using when connecting to varnish.
   You will not notice if this is mistyped, but cache invalidation will never happen.
+  You can also add a regexp here like ".*" to clear all host entries. The regexp will be
+  surrounded by "^(" and ")$" ending in "^(.*)$" in this example.
 * **ips**: List of IP adresses of your varnish servers. Comma separated.
 * **port**: The port varnish is listening on for incoming web connections.
 * **headers**: (optional) If you want to send special headers with each request sent to varnish,

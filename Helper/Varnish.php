@@ -74,10 +74,14 @@ class Varnish
      */
     public function __construct($host, array $ips, $port, $purgeInstruction = self::PURGE_INSTRUCTION_PURGE, $headers = null)
     {
-        $url = parse_url($host);
-        $this->host = $url['host'];
-        if (isset($url['port'])) {
-            $this->host .= ':' . $url['port'];
+        if (substr($host,0,7) == "http://") {
+            $url = parse_url($host);
+            $this->host = $url['host'];
+            if (isset($url['port'])) {
+                $this->host .= ':' . $url['port'];
+            }
+        } else {
+            $this->host = $host;
         }
         $this->ips  = $ips;
         $this->port = $port;
