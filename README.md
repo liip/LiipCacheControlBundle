@@ -189,12 +189,17 @@ liip_cache_control:
         host: http://www.liip.ch
         ips: 10.0.0.10, 10.0.0.11
         port: 80
+        headers: ["Authorization: Basic Zm9vOmJhcg==", "X-Another-Header: here"]
 ```
 
 * **host**: This must match the web host clients are using when connecting to varnish.
   You will not notice if this is mistyped, but cache invalidation will never happen.
+  You can also add a regexp here like ".*" to clear all host entries. The regexp will be
+  surrounded by "^(" and ")$" ending in "^(.*)$" in this example.
 * **ips**: List of IP adresses of your varnish servers. Comma separated.
 * **port**: The port varnish is listening on for incoming web connections.
+* **headers**: (optional) If you want to send special headers with each request sent to varnish,
+  you can add them here (as array)
 
 To use the varnish cache helper you must inject the
 ``liip_cache_control.varnish`` service or fetch it from the service container:
@@ -395,6 +400,30 @@ $varnish = $this->container->get('liip_cache_control.varnish');
 $varnish->refreshPath('/some/path');
 ```
 
+Banning from the console
+------------------------
+
+You can also ban URLs from the console
+
+``` shell
+app/console liip:cache-control:varnish:invalidate
+```
+
+will ban (invalidate) all entries in your configured varnish servers (matching
+varnish.host)
+
+``` shell
+app/console liip:cache-control:varnish:invalidate /posts.*
+```
+
+will ban (invalidate) all entries in your configured varnish servers, where the
+URL starts with "/posts". Any regular expression understood by varnish can be
+used here.
+
+It uses the Varnish Helper class, therefore if you defined more than one varnish
+server in the config file (in varnish.ips), the entries will be deleted in all
+servers.
+
 Cache authorization listener
 ============================
 
@@ -512,3 +541,5 @@ liip_cache_control:
     flash_message_listener:
         enabled: false
 ```
+
+
