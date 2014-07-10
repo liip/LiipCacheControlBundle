@@ -8,6 +8,16 @@ app configuration and provides a helper to control the reverse proxy varnish.
 [![Build Status](https://secure.travis-ci.org/liip/LiipCacheControlBundle.png)](http://travis-ci.org/liip/LiipCacheControlBundle)
 
 
+Roadmap
+=======
+
+This bundle is about to be replaced with the [FOSHttpCacheBundle](https://github.com/FriendsOfSymfony/FOSHttpCacheBundle).
+An upgrade help will be provided soonish.
+
+This repository will stay available to not break existing installations, but
+there will only be minimal maintenance.
+
+
 Installation with composer
 ==========================
 
