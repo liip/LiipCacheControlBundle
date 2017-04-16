@@ -50,6 +50,11 @@ class InvalidateVarnishCommand extends ContainerAwareCommand
         $container = $this->getContainer();
 
         $this->logger = $container->get('logger');
+        if (!$container->has('liip_cache_control.varnish')) {
+            $this->logger->info('<error>There is no cache control configuration for Varnish in this environment.</error>');
+
+            return;
+        }
         $helper = $this->getContainer()->get('liip_cache_control.varnish');
 
         $path = $input->getArgument('path');
